@@ -3,12 +3,22 @@
 #include <hyprland/src/managers/KeybindManager.hpp>
 #include <hyprland/src/helpers/Monitor.hpp>
 #include <hyprland/src/event/EventBus.hpp>
+#include <hyprland/src/desktop/Workspace.hpp>
 #include <string>
 
 inline HANDLE PHANDLE = nullptr;
 
 int g_iCurrentContext = 0;
 int g_iOffsetMultiplier = 100;
+
+void onNewWorkspace(PHLWORKSPACEREF pWorkspace) {
+    int contextNum = pWorkspace->m_id / g_iOffsetMultiplier;
+    int wsNum      = pWorkspace->m_id % g_iOffsetMultiplier;
+
+    if (pWorkspace->m_id >= g_iOffsetMultiplier) {
+        pWorkspace->m_name = "C" + std::to_string(contextNum) + ":" + std::to_string(wsNum);
+    }
+}
 
 SDispatchResult switchContext(std::string arg) {
     int newContext;
@@ -78,6 +88,7 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
     g_iOffsetMultiplier = std::any_cast<Hyprlang::INT>(HyprlandAPI::getConfigValue(PHANDLE, "plugin:hyprcontexts:offset")->getValue());
 
     Event::bus()->m_events.config.reloaded.listenStatic(onConfigReload);
+    Event::bus()->m_events.workspace.created.listenStatic(onNewWorkspace);
 
     HyprlandAPI::addDispatcherV2(PHANDLE, "switchcontext", switchContext);
     HyprlandAPI::addDispatcherV2(PHANDLE, "contextworkspace", contextWorkspace);
