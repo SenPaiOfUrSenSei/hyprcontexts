@@ -1,0 +1,20 @@
+plugin {
+    hyprcontexts {
+        offset = 100
+    }
+}
+
+# Context switching
+bind = SUPER CTRL, 1, plugin:context:switch, 0
+bind = SUPER CTRL, 2, plugin:context:switch, 1
+bind = SUPER CTRL, 3, plugin:context:switch, 2
+
+# Workspace navigation
+bind = SUPER, 1, plugin:context:workspace, 1
+bind = SUPER, 2, plugin:context:workspace, 2
+bind = SUPER, 3, plugin:context:workspace, 3
+
+# Moving windows
+bind = SUPER SHIFT, 1, plugin:context:movetoworkspace, 1
+bind = SUPER SHIFT, 2, plugin:context:movetoworkspace, 2
+bind = SUPER SHIFT, 3, plugin:context:movetoworkspace, 3
