@@ -90,9 +90,9 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
     Event::bus()->m_events.config.reloaded.listenStatic(onConfigReload);
     Event::bus()->m_events.workspace.created.listenStatic(onNewWorkspace);
 
-    HyprlandAPI::addDispatcherV2(PHANDLE, "switchcontext", switchContext);
-    HyprlandAPI::addDispatcherV2(PHANDLE, "contextworkspace", contextWorkspace);
-    HyprlandAPI::addDispatcherV2(PHANDLE, "contextmovetoworkspace", contextMoveToWorkspace);
+    HyprlandAPI::addDispatcherV2(PHANDLE, "plugin:context:switch", switchContext);
+    HyprlandAPI::addDispatcherV2(PHANDLE, "plugin:context:workspace", contextWorkspace);
+    HyprlandAPI::addDispatcherV2(PHANDLE, "plugin:context:movetoworkspace", contextMoveToWorkspace);
 
     HyprlandAPI::addNotification(PHANDLE, "[HyprContexts] Initialized!", CHyprColor(0.0f, 1.0f, 0.0f, 1.0f), 5000);
 
