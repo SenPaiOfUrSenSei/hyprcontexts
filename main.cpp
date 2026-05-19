@@ -142,7 +142,12 @@ SDispatchResult contextWorkspace(std::string arg) {
         return {false, false, "Invalid workspace number"};
     }
 
-    int target = (g_iCurrentContext * g_iOffsetMultiplier) + wsNum;
+    const auto pWorkspace = g_pCompositor->getMonitorFromCursor()->m_activeWorkspace;
+    if (!pWorkspace)
+        return {false, false, "No active workspace found"};
+
+    int currentContext = pWorkspace->m_id / g_iOffsetMultiplier;
+    int target = (currentContext * g_iOffsetMultiplier) + wsNum;
     g_pKeybindManager->m_dispatchers["workspace"](std::to_string(target));
 
     return {};
@@ -156,7 +161,12 @@ SDispatchResult contextMoveToWorkspace(std::string arg) {
         return {false, false, "Invalid workspace number"};
     }
 
-    int target = (g_iCurrentContext * g_iOffsetMultiplier) + wsNum;
+    const auto pWorkspace = g_pCompositor->getMonitorFromCursor()->m_activeWorkspace;
+    if (!pWorkspace)
+        return {false, false, "No active workspace found"};
+
+    int currentContext = pWorkspace->m_id / g_iOffsetMultiplier;
+    int target = (currentContext * g_iOffsetMultiplier) + wsNum;
     g_pKeybindManager->m_dispatchers["movetoworkspace"](std::to_string(target));
 
     return {};
