@@ -1,20 +1,38 @@
+# Load the plugin (recommended to put at the top of your config)
+# plugin = /path/to/hyprcontexts.so
+
 plugin {
     hyprcontexts {
         offset = 100
+        # on_switch = ~/.config/hypr/scripts/waybar-isolate.sh %C
     }
 }
 
 # Context switching
-bind = SUPER CTRL, 1, plugin:context:switch, 0
-bind = SUPER CTRL, 2, plugin:context:switch, 1
-bind = SUPER CTRL, 3, plugin:context:switch, 2
+bind = SUPER CTRL, 1, hyprcontexts:switch, 0
+bind = SUPER CTRL, 2, hyprcontexts:switch, 1
+bind = SUPER CTRL, 3, hyprcontexts:switch, 2
 
 # Workspace navigation
-bind = SUPER, 1, plugin:context:workspace, 1
-bind = SUPER, 2, plugin:context:workspace, 2
-bind = SUPER, 3, plugin:context:workspace, 3
+bind = SUPER, 1, hyprcontexts:workspace, 1
+bind = SUPER, 2, hyprcontexts:workspace, 2
+bind = SUPER, 3, hyprcontexts:workspace, 3
 
 # Moving windows
-bind = SUPER SHIFT, 1, plugin:context:movetoworkspace, 1
-bind = SUPER SHIFT, 2, plugin:context:movetoworkspace, 2
-bind = SUPER SHIFT, 3, plugin:context:movetoworkspace, 3
+bind = SUPER SHIFT, 1, hyprcontexts:movetoworkspace, 1
+bind = SUPER SHIFT, 2, hyprcontexts:movetoworkspace, 2
+bind = SUPER SHIFT, 3, hyprcontexts:movetoworkspace, 3
+
+# Context-aware workspace cycling (ideal for swipes)
+# Next: goes to next populated WS, or an empty one if at the end.
+# Prev: goes to previous populated WS, or highest populated if currently empty.
+bind = , swipe:3:r, hyprcontexts:cycle, next
+bind = , swipe:3:l, hyprcontexts:cycle, prev
+
+# Mouse scroll bindings
+bind = SUPER, mouse_down, hyprcontexts:cycle, next
+bind = SUPER, mouse_up, hyprcontexts:cycle, prev
+
+# Keyboard cycling
+bind = SUPER, bracketright, hyprcontexts:cycle, next
+bind = SUPER, bracketleft, hyprcontexts:cycle, prev
