@@ -1,9 +1,15 @@
 #include <hyprland/src/plugins/PluginAPI.hpp>
 #include <hyprland/src/Compositor.hpp>
 #include <hyprland/src/managers/KeybindManager.hpp>
-#include <hyprland/src/helpers/Monitor.hpp>
+#include <hyprland/src/output/Monitor.hpp>
 #include <hyprland/src/event/EventBus.hpp>
 #include <hyprland/src/desktop/Workspace.hpp>
+#include <hyprland/src/desktop/view/Window.hpp>
+#include <hyprland/src/desktop/state/WindowState.hpp>
+#include <hyprland/src/state/WorkspaceState.hpp>
+#include <hyprland/src/state/MonitorState.hpp>
+#include <hyprland/src/state/MonitorQuery.hpp>
+#include <hyprland/src/pointer/PointerManager.hpp>
 #include <string>
 #include <set>
 #include <fstream>
@@ -16,6 +22,13 @@ int g_iOffsetMultiplier = 100;
 void pluginLog(std::string msg) {
     std::ofstream logFile("/tmp/hyprcontexts.log", std::ios::app);
     logFile << msg << std::endl;
+}
+
+PHLWORKSPACE getActiveWorkspace() {
+    auto pMonitor = State::monitorState()->query().vec(Pointer::mgr()->position()).run();
+    if (!pMonitor && !State::monitorState()->monitors().empty())
+        pMonitor = State::monitorState()->monitors().front();
+    return pMonitor ? pMonitor->m_activeWorkspace : nullptr;
 }
 
 void onNewWorkspace(PHLWORKSPACEREF pWorkspace) {
@@ -55,7 +68,7 @@ SDispatchResult cycleContext(std::string arg) {
     bool next = arg == "next";
     pluginLog("Cycle called with arg: " + arg);
 
-    const auto pCurrentWorkspace = g_pCompositor->getMonitorFromCursor()->m_activeWorkspace;
+    const auto pCurrentWorkspace = getActiveWorkspace();
     if (!pCurrentWorkspace) {
         pluginLog("Error: No active workspace found");
         return {false, false, "No active workspace found"};
@@ -66,7 +79,7 @@ SDispatchResult cycleContext(std::string arg) {
 
     // Build a sorted set of populated workspace IDs in current context
     std::set<int> populated;
-    for (auto& w : g_pCompositor->m_windows) {
+    for (auto& w : Desktop::windowState()->windows()) {
         if (w->m_workspace && !w->isHidden() && (int)(w->m_workspace->m_id / g_iOffsetMultiplier) == currentCtx) {
             populated.insert(w->m_workspace->m_id);
         }
@@ -117,7 +130,7 @@ SDispatchResult switchContext(std::string arg) {
         return {false, false, "Invalid context ID"};
     }
 
-    const auto pWorkspace = g_pCompositor->getMonitorFromCursor()->m_activeWorkspace;
+    const auto pWorkspace = getActiveWorkspace();
     if (!pWorkspace)
         return {false, false, "No active workspace found"};
 
@@ -142,7 +155,7 @@ SDispatchResult contextWorkspace(std::string arg) {
         return {false, false, "Invalid workspace number"};
     }
 
-    const auto pWorkspace = g_pCompositor->getMonitorFromCursor()->m_activeWorkspace;
+    const auto pWorkspace = getActiveWorkspace();
     if (!pWorkspace)
         return {false, false, "No active workspace found"};
 
@@ -161,7 +174,7 @@ SDispatchResult contextMoveToWorkspace(std::string arg) {
         return {false, false, "Invalid workspace number"};
     }
 
-    const auto pWorkspace = g_pCompositor->getMonitorFromCursor()->m_activeWorkspace;
+    const auto pWorkspace = getActiveWorkspace();
     if (!pWorkspace)
         return {false, false, "No active workspace found"};
 
@@ -173,7 +186,7 @@ SDispatchResult contextMoveToWorkspace(std::string arg) {
 }
 
 void renameExistingWorkspaces() {
-    for (auto& w : g_pCompositor->getWorkspaces()) {
+    for (auto& w : State::workspaceState()->workspacesCopy()) {
         int contextNum = w->m_id / g_iOffsetMultiplier;
         int wsNum      = w->m_id % g_iOffsetMultiplier;
         w->m_name      = "C" + std::to_string(contextNum) + ":" + std::to_string(wsNum);
@@ -217,3 +230,4 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
 APICALL EXPORT void PLUGIN_EXIT() {
     // Cleanup
 }
+
